@@ -2,7 +2,7 @@
 
 When you run the main file of this project, this window will appear.
 
-![Image](images/GUI.jpg)
+![Image](../images/GUI.jpg)
 
 ## Explanations
 
@@ -17,7 +17,7 @@ When you run the main file of this project, this window will appear.
 For the LCA examples, another panel will appear on the right of the screen where you choose what nodes to find the
 least common ancestor for:
 
-![Image](images/LCA.jpg)
+![Image](../images/LCA.jpg)
 
 ## How to interpret the results
 

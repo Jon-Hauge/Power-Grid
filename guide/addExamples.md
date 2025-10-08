@@ -62,4 +62,4 @@ This way, the program will look for the correct number of examples when importin
 ---
 
 Now you have created your very own examples for the visualizer!
-Feel free to share these with your fellow students as you please, this is NOT consider as plagiarism 😊
+Feel free to share these with your fellow students as you please, this is NOT considered as plagiarism 😊
