@@ -1,12 +1,10 @@
 package student;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.TreeSet;
@@ -82,7 +80,28 @@ public class ProblemSolver implements IProblem {
 	// O(n + m) for entire method
 	@Override
 	public <V> V lca(Graph<V> g, V root, V u, V v) {
-		HashMap<V, V> parents = bfs(g, root).getKey(); // O(n + m)
+		// O(1)
+		HashMap<V, V> parents = new HashMap<>();
+		Queue<V> queue = new LinkedList<>();
+		parents.put(root, null);
+		queue.add(root);
+		V farthest = root;
+
+		// O(n + m) for entire loop
+		while (!queue.isEmpty()) { // O(n)
+			// O(1)
+			V nextVertice = queue.poll();
+			farthest = nextVertice;
+
+			// O(degree(nextVertice)) for entire loop, sums up to O(m) after entire traversal
+			for (V neighbor : g.neighbours(nextVertice)) { // O(degree(nextVertice))
+				// O(1)
+				if (!parents.containsKey(neighbor)) {
+					parents.put(neighbor, nextVertice);
+					queue.add(neighbor);
+				}
+			}
+		}
 
 		// O(1)
 		HashSet<V> ancestors = new HashSet<>();
@@ -148,39 +167,7 @@ public class ProblemSolver implements IProblem {
 				low = middle + 1;
 			}
 		}
-		if (bestA == null || bestB == null) { // O(1)
-			bestA = bfs(g, root).getValue(); // O(n + m)
-			bestB = bfs(g, bestA).getValue(); // O(n + m)
-		}
-
 		return new Edge<V>(bestA, bestB); // O(1)
-	}
-
-	// O(n + m) for entire method
-	private <V> Map.Entry<HashMap<V, V>, V> bfs(Graph<V> g, V root) {
-		// O(1)
-		HashMap<V, V> parents = new HashMap<>();
-		Queue<V> queue = new LinkedList<>();
-		parents.put(root, null);
-		queue.add(root);
-		V farthest = root;
-
-		// O(n + m) for entire loop
-		while (!queue.isEmpty()) { // O(n)
-			// O(1)
-			V nextVertice = queue.poll();
-			farthest = nextVertice;
-
-			// O(degree(nextVertice)) for entire loop, sums up to O(m) after entire traversal
-			for (V neighbor : g.neighbours(nextVertice)) { // O(degree(nextVertice))
-				// O(1)
-				if (!parents.containsKey(neighbor)) {
-					parents.put(neighbor, nextVertice);
-					queue.add(neighbor);
-				}
-			}
-		}
-		return new AbstractMap.SimpleEntry<>(parents, farthest);	
 	}
 
 	// O(n + m) for entire method
