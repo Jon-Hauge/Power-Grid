@@ -13,7 +13,7 @@ import graph.*;
 
 public class ProblemSolver implements IProblem {
 
-	// O(m log m) for entire method
+	// O(E log E) for entire method
 	@Override
 	public <V, E extends Comparable<E>> ArrayList<Edge<V>> mst(WeightedGraph<V, E> g) {
 		// O(1)
@@ -32,14 +32,14 @@ public class ProblemSolver implements IProblem {
 		V startVertice = iter.next();
 		visited.add(startVertice);
 
-		// O(degree(startVertice) * log m) for entire loop
+		// O(degree(startVertice) * log E) for entire loop
 		for (Edge<V> e : g.adjacentEdges(startVertice)) { // O(degree(startVertice))
-			toSearch.add(e); // O(log m)
+			toSearch.add(e); // O(log E)
 		}
 
-		// O(m log m) for entire loop
-		while (!toSearch.isEmpty()) { // O(m)
-			Edge<V> edge = toSearch.poll(); // O(log m)
+		// O(E log E) for entire loop
+		while (!toSearch.isEmpty()) { // O(E)
+			Edge<V> edge = toSearch.poll(); // O(log E)
 			// O(1)
 			V nextVertice = null;
 			V a = edge.a;
@@ -58,7 +58,7 @@ public class ProblemSolver implements IProblem {
 			mst.add(edge);
 			visited.add(nextVertice);
 
-			// O(degree(nextVertice) * log m) for entire loop
+			// O(degree(nextVertice) * log E) for entire loop
 			for (Edge<V> e : g.adjacentEdges(nextVertice)) { // O(degree(nextVertice))
 				V otherVertice = null; // O(1)
 
@@ -69,7 +69,7 @@ public class ProblemSolver implements IProblem {
 					otherVertice = e.a;
 				}
 				if (!visited.contains(otherVertice)) {
-					toSearch.add(e); // O(log m)
+					toSearch.add(e); // O(log E)
 				}
 			}
 		}
@@ -77,7 +77,7 @@ public class ProblemSolver implements IProblem {
 		return mst;
 	}
 
-	// O(n + m) for entire method
+	// O(V + E) for entire method
 	@Override
 	public <V> V lca(Graph<V> g, V root, V u, V v) {
 		// O(1)
@@ -87,13 +87,13 @@ public class ProblemSolver implements IProblem {
 		queue.add(root);
 		V farthest = root;
 
-		// O(n + m) for entire loop
-		while (!queue.isEmpty()) { // O(n)
+		// O(V + E) for entire loop
+		while (!queue.isEmpty()) { // O(V)
 			// O(1)
 			V nextVertice = queue.poll();
 			farthest = nextVertice;
 
-			// O(degree(nextVertice)) for entire loop, sums up to O(m) after entire traversal
+			// O(degree(nextVertice)) for entire loop, sums up to O(E) after entire traversal
 			for (V neighbor : g.neighbours(nextVertice)) { // O(degree(nextVertice))
 				// O(1)
 				if (!parents.containsKey(neighbor)) {
@@ -107,16 +107,16 @@ public class ProblemSolver implements IProblem {
 		HashSet<V> ancestors = new HashSet<>();
 		V current = u;
 		
-		// O(n) for entire loop
-		while (current != null) { // O(n)
+		// O(V) for entire loop
+		while (current != null) { // O(V)
 			// O(1)
 			ancestors.add(current);
 			current = parents.get(current);
 		}
 
 		current = v; // O(1)
-		// O(n) for entire loop
-		while (current != null) { // O(n)
+		// O(V) for entire loop
+		while (current != null) { // O(V)
 			// O(1)
 			if (ancestors.contains(current)) {
 				return current;
@@ -127,25 +127,27 @@ public class ProblemSolver implements IProblem {
 		return null;
 	}
 
-	// O((n + m) log m) for entire method
+	// O((V + E) log E) for entire method
 	@Override
 	public <V> Edge<V> addRedundant(Graph<V> g, V root) {
 		// O(1)
 		HashMap<V, Integer> size = new HashMap<>();
 		HashSet<V> visited = new HashSet<>();
 
-		computeSubtreeSizes(g, root, visited, size); // O(n + m)
+		// The following function and computing the vulnerability-map
+		// was inspired by the implementation in the PowerOutage class.
+		computeSubtreeSizes(g, root, visited, size); // O(V + E)
 
 		HashMap<Edge<V>, Integer> vulnerability = new HashMap<>(); // O(1)
-		// O(m) for entire loop
-		for (Edge<V> edge : g.edges()) { // O(m)
+		// O(E) for entire loop
+		for (Edge<V> edge : g.edges()) { // O(E)
 			vulnerability.put(edge, Math.min(size.get(edge.a), size.get(edge.b))); // O(1)
 		}
 		
-		TreeSet<Integer> unique = new TreeSet<>(vulnerability.values()); // O(m log m)
-		ArrayList<Integer> values = new ArrayList<>(unique); // O(m)
+		TreeSet<Integer> unique = new TreeSet<>(vulnerability.values()); // O(E log E)
+		ArrayList<Integer> values = new ArrayList<>(unique); // O(E)
 
-		values.add(0, -1); // O(m)
+		values.add(0, -1); // O(E)
 		
 		// O(1)
 		V bestA = null;
@@ -153,10 +155,10 @@ public class ProblemSolver implements IProblem {
 		int low = 0;
 		int high = values.size() - 1;
 
-		// O((n + m) log m) for entire loop
-		while (low <= high) { // O(m)
+		// O((V + E) log E) for entire loop
+		while (low <= high) { // O(E)
 			int middle = (low + high) / 2; // O(1)
-			Object[] path = heavyPathEndpoints(g, vulnerability, values.get(middle)); // O(n + m)
+			Object[] path = heavyPathEndpoints(g, vulnerability, values.get(middle)); // O(V + E)
 			
 			// O(1)
 			if (path != null) {
@@ -170,7 +172,7 @@ public class ProblemSolver implements IProblem {
 		return new Edge<V>(bestA, bestB); // O(1)
 	}
 
-	// O(n + m) for entire method
+	// O(V + E) for entire method
 	private <V> int computeSubtreeSizes(Graph<V> g, V vertice, HashSet<V> visited, HashMap<V, Integer> size) {
 		// O(1)
 		if (!visited.add(vertice)) {
@@ -178,21 +180,27 @@ public class ProblemSolver implements IProblem {
 		}
 		int sz = 1;
 
-		// O(n + m) for entire loop
-		for (V neighbor : g.neighbours(vertice)) { // O(degree(vertice)), sums up to m for entire traversal
-			sz += computeSubtreeSizes(g, neighbor, visited, size); // O(n + m) total for all calls
+		// O(V + E) for entire loop
+		for (V neighbor : g.neighbours(vertice)) { // O(degree(vertice)), sums up to E for entire traversal
+			sz += computeSubtreeSizes(g, neighbor, visited, size); // O(V + E) total for all calls
 		}
 		size.put(vertice, sz); // O(1)
 		
 		return sz;
 	}
 
+	/* OpenAI's ChatGPT was used to formulate and/or coming up with ideas for parts of the code*
+    * This applies to the idea of constructing subgraphs above the vulnerable candidates, and
+	* the implementation of this using a hashmap and going through each entry.
+	* All code that was helped by AI is understood in and of itself and in regard to the rest of the program.
+    * OpenAI - https://chatgpt.com - retrieved 16.10.25
+    */ 
 	// O(n + m) for entire method
 	private <V> Object[] heavyPathEndpoints(Graph<V> g, HashMap<Edge<V>, Integer> vulnerability, Integer k) {
 		HashMap<V, ArrayList<V>> heavy = new HashMap<>(); // O(1)
 		
-		// O(m) for entire loop
-		for (Edge<V> edge : g.edges()) { // O(m)
+		// O(E) for entire loop
+		for (Edge<V> edge : g.edges()) { // O(E)
 			// O(1)
 			if (vulnerability.get(edge) > k) {
 				heavy.computeIfAbsent(edge.a, x -> new ArrayList<>()).add(edge.b);
@@ -210,8 +218,8 @@ public class ProblemSolver implements IProblem {
 		V b = null;
 		V start = null;
 		
-		// O(n) for entire loop
-		for (var entry : heavy.entrySet()) { // O(n)
+		// O(V) for entire loop
+		for (var entry : heavy.entrySet()) { // O(V)
 			// O(1)
 			int degree = entry.getValue().size();
 			if (degree > 2) {
@@ -237,12 +245,12 @@ public class ProblemSolver implements IProblem {
 		seen.add(start);
 		toSearch.add(start);
 
-		// O(n + m) for entire loop
-		while (!toSearch.isEmpty()) { // O(m)
+		// O(V + E) for entire loop
+		while (!toSearch.isEmpty()) { // O(E)
 			V currentVertice = toSearch.poll(); // O(1)
 
-			// O(m) for entire traversal
-			for (V neighbor : heavy.getOrDefault(currentVertice, new ArrayList<>())) { // O(degree(currentVertice)), sums up to m for entire traversal
+			// O(E) for entire traversal
+			for (V neighbor : heavy.getOrDefault(currentVertice, new ArrayList<>())) { // O(degree(currentVertice)), sums up to E for entire traversal
 				// O(1)
 				if (seen.add(neighbor)) {
 					toSearch.add(neighbor);
